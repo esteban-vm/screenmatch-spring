@@ -1,6 +1,6 @@
 package com.aluracursos.screenmatch;
 
-import com.aluracursos.screenmatch.main.StreamExample;
+import com.aluracursos.screenmatch.main.Main;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,10 +13,10 @@ public class ScreenmatchApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-//        Main main = new Main();
-//        main.showMenu();
-        
-        StreamExample streamExample = new StreamExample();
-        streamExample.showExample();
+        Main main = new Main();
+        main.showMenu();
+
+        // StreamExample streamExample = new StreamExample();
+        // streamExample.showExample();
     }
 }

@@ -9,8 +9,9 @@ import com.aluracursos.screenmatch.services.DataConversor;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Scanner;
-import java.util.function.Consumer;
 
 public class Main {
     private static final String URL_BASE = "http://www.omdbapi.com/";
@@ -45,7 +46,20 @@ public class Main {
         //     }
         // }
 
-        Consumer<Episode> episodeConsumer = episode -> System.out.println(episode.title());
-        seasons.forEach(season -> season.episodes().forEach(episodeConsumer));
+        // Consumer<Episode> episodeConsumer = episode -> System.out.println(episode.title());
+        // seasons.forEach(season -> season.episodes().forEach(episodeConsumer));
+
+        List<Episode> episodes = seasons.stream()
+                .flatMap(season -> season.episodes().stream())
+                .toList();
+
+        // Top 5 Episodes
+        System.out.println("Los 5 mejores episodios:");
+
+        episodes.stream()
+                .filter(episode -> !episode.rating().equalsIgnoreCase("n/a"))
+                .sorted(Comparator.comparing(Episode::rating).reversed())
+                .limit(5)
+                .forEach(System.out::println);
     }
 }
