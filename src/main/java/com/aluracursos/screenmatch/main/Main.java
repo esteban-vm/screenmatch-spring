@@ -1,0 +1,46 @@
+package com.aluracursos.screenmatch.main;
+
+import com.aluracursos.screenmatch.models.Episode;
+import com.aluracursos.screenmatch.models.Season;
+import com.aluracursos.screenmatch.models.Series;
+import com.aluracursos.screenmatch.services.API;
+import com.aluracursos.screenmatch.services.DataConversor;
+
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Main {
+    private static final String URL_BASE = "http://www.omdbapi.com/";
+    private static final String API_KEY = "9c53b1c8";
+    private final Scanner scanner = new Scanner(System.in);
+    private final API api = new API();
+    private final DataConversor conversor = new DataConversor();
+
+
+    public void showMenu() {
+        System.out.println("Escribe el nombre de la serie que deseas buscar:");
+        var seriesTitle = scanner.nextLine();
+        var encoded = URLEncoder.encode(seriesTitle, Charset.defaultCharset());
+        var url = URL_BASE + "?apikey=" + API_KEY + "&t=" + encoded;
+
+        var seriesJson = api.call(url);
+        var series = conversor.getData(seriesJson, Series.class);
+        System.out.println(series);
+
+        var episodeJson = api.call(url + "&episode=1");
+        var episode = conversor.getData(episodeJson, Episode.class);
+        System.out.println(episode);
+
+        var seasons = new ArrayList<Season>();
+
+        for (int i = 1; i <= series.numberOfSeasons(); i++) {
+            var seasonJson = api.call(url + "&Season=" + i);
+            var season = conversor.getData(seasonJson, Season.class);
+            seasons.add(season);
+        }
+
+        seasons.forEach(System.out::println);
+    }
+}
