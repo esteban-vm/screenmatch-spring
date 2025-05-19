@@ -1,5 +1,6 @@
 package com.aluracursos.screenmatch;
 
+import com.aluracursos.screenmatch.models.Episode;
 import com.aluracursos.screenmatch.models.Series;
 import com.aluracursos.screenmatch.services.API;
 import com.aluracursos.screenmatch.services.DataConversor;
@@ -16,10 +17,14 @@ public class ScreenmatchApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         API api = new API();
-        var json = api.getData("http://www.omdbapi.com/?apikey=9c53b1c8&t=matrix");
-
         DataConversor conversor = new DataConversor();
-        var data = conversor.getData(json, Series.class);
-        System.out.println(data);
+
+        var json = api.getData("http://www.omdbapi.com/?apikey=9c53b1c8&t=game-of-thrones");
+        var series = conversor.getData(json, Series.class);
+        System.out.println(series);
+
+        json = api.getData("http://www.omdbapi.com/?apikey=9c53b1c8&t=game-of-thrones&Season=1&episode=1");
+        var episode = conversor.getData(json, Episode.class);
+        System.out.println(episode);
     }
 }
