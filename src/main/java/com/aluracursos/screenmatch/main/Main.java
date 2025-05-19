@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 public class Main {
     private static final String URL_BASE = "http://www.omdbapi.com/";
@@ -27,11 +28,6 @@ public class Main {
 
         var seriesJson = api.call(url);
         var series = conversor.getData(seriesJson, Series.class);
-        System.out.println(series);
-
-        var episodeJson = api.call(url + "&episode=1");
-        var episode = conversor.getData(episodeJson, Episode.class);
-        System.out.println(episode);
 
         var seasons = new ArrayList<Season>();
 
@@ -41,6 +37,15 @@ public class Main {
             seasons.add(season);
         }
 
-        seasons.forEach(System.out::println);
+        // for (Season season : seasons) {
+        //     List<Episode> episodes = season.episodes();
+        //
+        //     for (Episode episode : episodes) {
+        //         System.out.println(episode.title());
+        //     }
+        // }
+
+        Consumer<Episode> episodeConsumer = episode -> System.out.println(episode.title());
+        seasons.forEach(season -> season.episodes().forEach(episodeConsumer));
     }
 }
