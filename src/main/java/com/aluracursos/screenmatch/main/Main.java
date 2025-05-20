@@ -1,6 +1,6 @@
 package com.aluracursos.screenmatch.main;
 
-import com.aluracursos.screenmatch.models.Episode;
+import com.aluracursos.screenmatch.models.Movie;
 import com.aluracursos.screenmatch.models.Season;
 import com.aluracursos.screenmatch.models.Series;
 import com.aluracursos.screenmatch.services.API;
@@ -9,7 +9,6 @@ import com.aluracursos.screenmatch.services.DataConversor;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -49,17 +48,26 @@ public class Main {
         // Consumer<Episode> episodeConsumer = episode -> System.out.println(episode.title());
         // seasons.forEach(season -> season.episodes().forEach(episodeConsumer));
 
-        List<Episode> episodes = seasons.stream()
-                .flatMap(season -> season.episodes().stream())
-                .toList();
+        // List<Episode> episodes = seasons.stream()
+        //         .flatMap(season -> season.episodes().stream())
+        //         .toList();
 
         // Top 5 Episodes
-        System.out.println("Los 5 mejores episodios:");
+        // System.out.println("Los 5 mejores episodios:");
+        //
+        // episodes.stream()
+        //         .filter(episode -> !episode.rating().equalsIgnoreCase("n/a"))
+        //         .sorted(Comparator.comparing(Episode::rating).reversed())
+        //         .limit(5)
+        //         .forEach(System.out::println);
 
-        episodes.stream()
-                .filter(episode -> !episode.rating().equalsIgnoreCase("n/a"))
-                .sorted(Comparator.comparing(Episode::rating).reversed())
-                .limit(5)
-                .forEach(System.out::println);
+        List<Movie> movies = seasons.stream()
+                .flatMap(season -> season
+                        .episodes()
+                        .stream()
+                        .map(episode -> new Movie(season.number(), episode)))
+                .toList();
+
+        movies.forEach(System.out::println);
     }
 }
