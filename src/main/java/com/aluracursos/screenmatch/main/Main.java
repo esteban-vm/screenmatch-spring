@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Main {
@@ -23,9 +24,11 @@ public class Main {
 
 
     public void showMenu() {
-        System.out.println("\uD83D\uDCDD Escribe el nombre de la serie que deseas buscar:");
+        var leadingMenuPart = "\n\uD83D\uDCDD ";
+        System.out.println(leadingMenuPart + "Escribe el título de la serie que deseas buscar:");
         var seriesTitle = scanner.nextLine();
-        var encodedTitle = URLEncoder.encode(seriesTitle, Charset.defaultCharset());
+
+        var encodedTitle = URLEncoder.encode(seriesTitle.trim(), Charset.defaultCharset());
         var url = URL_BASE + "?apikey=" + API_KEY + "&t=" + encodedTitle;
         var seriesJson = api.call(url);
         var series = conversor.getData(seriesJson, Series.class);
@@ -70,7 +73,13 @@ public class Main {
 
         movies.forEach(System.out::println);
 
-        System.out.println("\uD83D\uDCDD Indica el año a partir del cual deseas ver la serie:");
+        seriesTitle = "'" + seriesTitle.toUpperCase() + "'";
+
+        System.out.println(leadingMenuPart
+                + "Escribe el año a partir del cual deseas ver la serie "
+                + seriesTitle
+                + ":");
+
         var seriesYear = scanner.nextInt();
         scanner.nextLine();
 
@@ -91,5 +100,27 @@ public class Main {
                         + movie.getDateOfRelease()
                         .format(dateTimeFormatter)
                 ));
+
+        System.out.println(leadingMenuPart
+                + "Escribe el título del episodio específico de la serie "
+                + seriesTitle
+                + " que deseas ver:");
+
+        var episodeTitle = scanner.nextLine();
+
+        Optional<Movie> movieOptional = movies
+                .stream()
+                .filter(movie -> movie
+                        .getTitle()
+                        .toUpperCase()
+                        .contains(episodeTitle.toUpperCase()))
+                .findFirst();
+
+        if (movieOptional.isPresent()) {
+            System.out.println("\uD83D\uDC4D Episodio encontrado");
+            System.out.println(movieOptional.get());
+        } else {
+            System.out.println("\uD83D\uDC4E Episodio no encontrado");
+        }
     }
 }
