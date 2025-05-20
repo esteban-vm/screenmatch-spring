@@ -54,19 +54,19 @@ public class Movie {
         this.rating = rating;
     }
 
-    public Integer getSeason() {
+    public int getSeason() {
         return season;
     }
 
-    public void setSeason(Integer season) {
+    public void setSeason(int season) {
         this.season = season;
     }
 
-    public Integer getEpisode() {
+    public int getEpisode() {
         return episode;
     }
 
-    public void setEpisode(Integer episode) {
+    public void setEpisode(int episode) {
         this.episode = episode;
     }
 
