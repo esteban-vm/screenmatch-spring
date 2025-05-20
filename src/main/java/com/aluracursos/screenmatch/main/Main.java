@@ -10,10 +10,8 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
     private static final String URL_BASE = "http://www.omdbapi.com/";
@@ -117,10 +115,17 @@ public class Main {
                 .findFirst();
 
         if (movieOptional.isPresent()) {
-            System.out.println("\uD83D\uDC4D Episodio encontrado");
+            System.out.println("\uD83D\uDC4D Episodio encontrado:");
             System.out.println(movieOptional.get());
         } else {
             System.out.println("\uD83D\uDC4E Episodio no encontrado");
         }
+
+        Map<Integer, Double> ratingsPerSeason = movies.stream()
+                .filter(movie -> movie.getRating() > 0.0)
+                .collect(Collectors.groupingBy(Movie::getSeason,
+                        Collectors.averagingDouble(Movie::getRating)));
+
+        System.out.println("\n" + ratingsPerSeason);
     }
 }
