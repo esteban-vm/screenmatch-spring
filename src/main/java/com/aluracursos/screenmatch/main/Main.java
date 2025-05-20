@@ -8,6 +8,8 @@ import com.aluracursos.screenmatch.services.DataConversor;
 
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -21,14 +23,12 @@ public class Main {
 
 
     public void showMenu() {
-        System.out.println("Escribe el nombre de la serie que deseas buscar:");
+        System.out.println("\uD83D\uDCDD Escribe el nombre de la serie que deseas buscar:");
         var seriesTitle = scanner.nextLine();
-        var encoded = URLEncoder.encode(seriesTitle, Charset.defaultCharset());
-        var url = URL_BASE + "?apikey=" + API_KEY + "&t=" + encoded;
-
+        var encodedTitle = URLEncoder.encode(seriesTitle, Charset.defaultCharset());
+        var url = URL_BASE + "?apikey=" + API_KEY + "&t=" + encodedTitle;
         var seriesJson = api.call(url);
         var series = conversor.getData(seriesJson, Series.class);
-
         var seasons = new ArrayList<Season>();
 
         for (int i = 1; i <= series.numberOfSeasons(); i++) {
@@ -69,5 +69,27 @@ public class Main {
                 .toList();
 
         movies.forEach(System.out::println);
+
+        System.out.println("\uD83D\uDCDD Indica el año a partir del cual deseas ver la serie:");
+        var seriesYear = scanner.nextInt();
+        scanner.nextLine();
+
+        LocalDate dateOfSeries = LocalDate.of(seriesYear, 1, 1);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        movies.stream()
+                .filter(movie -> {
+                    LocalDate release = movie.getDateOfRelease();
+                    return release != null && release.isAfter(dateOfSeries);
+                })
+                .forEach(movie -> System.out.println("\uD83C\uDFAC" +
+                        " Temporada: "
+                        + movie.getSeason()
+                        + ", Título: '" +
+                        movie.getTitle()
+                        + "', Fecha de lanzamiento: "
+                        + movie.getDateOfRelease()
+                        .format(dateTimeFormatter)
+                ));
     }
 }
