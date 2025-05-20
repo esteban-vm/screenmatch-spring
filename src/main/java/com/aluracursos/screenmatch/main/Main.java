@@ -126,6 +126,14 @@ public class Main {
                 .collect(Collectors.groupingBy(Movie::getSeason,
                         Collectors.averagingDouble(Movie::getRating)));
 
-        System.out.println("\n" + ratingsPerSeason);
+        System.out.println("\nPuntuaciones por temporada: " + ratingsPerSeason);
+
+        DoubleSummaryStatistics statistics = movies.stream()
+                .filter(movie -> movie.getRating() > 0.0)
+                .collect(Collectors.summarizingDouble(Movie::getRating));
+
+        System.out.println("\nPromedio de puntuaciones: " + statistics.getAverage());
+        System.out.println("Mejor puntuación: " + statistics.getMax());
+        System.out.println("Peor puntuación: " + statistics.getMin());
     }
 }
