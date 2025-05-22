@@ -3,7 +3,7 @@ package com.aluracursos.screenmatch.main;
 import com.aluracursos.screenmatch.models.Movie;
 import com.aluracursos.screenmatch.models.Season;
 import com.aluracursos.screenmatch.models.Series;
-import com.aluracursos.screenmatch.services.API;
+import com.aluracursos.screenmatch.services.APIConsumer;
 import com.aluracursos.screenmatch.services.DataConversor;
 
 import java.net.URLEncoder;
@@ -17,7 +17,7 @@ public class Main {
     private static final String URL_BASE = "http://www.omdbapi.com/";
     private static final String API_KEY = "9c53b1c8";
     private final Scanner scanner = new Scanner(System.in);
-    private final API api = new API();
+    private final APIConsumer consumer = new APIConsumer();
     private final DataConversor conversor = new DataConversor();
 
 
@@ -28,12 +28,12 @@ public class Main {
 
         var encodedTitle = URLEncoder.encode(seriesTitle.trim(), Charset.defaultCharset());
         var url = URL_BASE + "?apikey=" + API_KEY + "&t=" + encodedTitle;
-        var seriesJson = api.call(url);
+        var seriesJson = consumer.getDataFromAPI(url);
         var series = conversor.getData(seriesJson, Series.class);
         var seasons = new ArrayList<Season>();
 
         for (int i = 1; i <= series.numberOfSeasons(); i++) {
-            var seasonJson = api.call(url + "&Season=" + i);
+            var seasonJson = consumer.getDataFromAPI(url + "&Season=" + i);
             var season = conversor.getData(seasonJson, Season.class);
             seasons.add(season);
         }
