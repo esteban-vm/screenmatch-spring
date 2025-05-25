@@ -31,11 +31,13 @@ public class Movie {
 
     @Override
     public String toString() {
-        return "\uD83C\uDFAC Título: '" + title + "'" +
-                ", Episodio: " + episode +
-                ", Temporada: " + season +
-                ", Puntuación: " + rating +
-                ", Fecha de lanzamiento: " + dateOfRelease;
+        return "Movie{" +
+                "title='" + title + '\'' +
+                ", rating=" + rating +
+                ", season=" + season +
+                ", episode=" + episode +
+                ", dateOfRelease=" + dateOfRelease +
+                '}';
     }
 
     public String getTitle() {
