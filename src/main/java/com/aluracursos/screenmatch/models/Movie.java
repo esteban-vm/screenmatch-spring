@@ -10,7 +10,7 @@ public class Movie {
     private int episode;
     private LocalDate dateOfRelease;
 
-    public Movie(int number, Episode episode) {
+    public Movie(int number, APIEpisode episode) {
         this.title = episode.title();
 
         try {
