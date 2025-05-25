@@ -2,12 +2,15 @@ package com.aluracursos.screenmatch.main;
 
 import com.aluracursos.screenmatch.models.APISeason;
 import com.aluracursos.screenmatch.models.APISeries;
+import com.aluracursos.screenmatch.models.Series;
 import com.aluracursos.screenmatch.services.APIConsumer;
 import com.aluracursos.screenmatch.services.DataConversor;
 
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -193,7 +196,14 @@ public class Main {
     }
 
     private void showSearchedSeries() {
-        searchedSeries.forEach(System.out::println);
+        List<Series> seriesList = searchedSeries
+                .stream()
+                .map(Series::new)
+                .toList();
+
+        seriesList.stream()
+                .sorted(Comparator.comparing(Series::getGenre))
+                .forEach(System.out::println);
     }
 
     private String encodeTitle(String title) {
