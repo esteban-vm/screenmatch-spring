@@ -11,7 +11,7 @@ public class Series {
     private String actors;
     private String synopsis;
 
-    public Series(APISeries series) {
+    public Series(DataSeries series) {
         title = series.title();
         rating = OptionalDouble.of(Double.parseDouble(series.rating())).orElse(0.0);
         numberOfSeasons = series.numberOfSeasons();

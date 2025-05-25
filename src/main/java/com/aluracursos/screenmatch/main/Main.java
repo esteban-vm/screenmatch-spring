@@ -1,7 +1,7 @@
 package com.aluracursos.screenmatch.main;
 
-import com.aluracursos.screenmatch.models.APISeason;
-import com.aluracursos.screenmatch.models.APISeries;
+import com.aluracursos.screenmatch.models.DataSeason;
+import com.aluracursos.screenmatch.models.DataSeries;
 import com.aluracursos.screenmatch.models.Series;
 import com.aluracursos.screenmatch.services.APIConsumer;
 import com.aluracursos.screenmatch.services.DataConversor;
@@ -22,7 +22,7 @@ public class Main {
     private final APIConsumer consumer = new APIConsumer();
     private final DataConversor conversor = new DataConversor();
 
-    private final ArrayList<APISeries> searchedSeries = new ArrayList<>();
+    private final ArrayList<DataSeries> searchedSeries = new ArrayList<>();
 
 //    public void showMenu() {
 //        var leadingMenuPart = "\n\uD83D\uDCDD ";
@@ -32,27 +32,27 @@ public class Main {
 //        var encodedTitle = URLEncoder.encode(seriesTitle.trim(), Charset.defaultCharset());
 //        var url = URL_BASE + "?apikey=" + API_KEY + "&t=" + encodedTitle;
 //        var seriesJson = consumer.getDataFromAPI(url);
-//        var series = conversor.getData(seriesJson, APISeries.class);
-//        var seasons = new ArrayList<APISeason>();
+//        var series = conversor.getData(seriesJson, DataSeries.class);
+//        var seasons = new ArrayList<DataSeason>();
 //
 //        for (int i = 1; i <= series.numberOfSeasons(); i++) {
-//            var seasonJson = consumer.getDataFromAPI(url + "&APISeason=" + i);
-//            var season = conversor.getData(seasonJson, APISeason.class);
+//            var seasonJson = consumer.getDataFromAPI(url + "&DataSeason=" + i);
+//            var season = conversor.getData(seasonJson, DataSeason.class);
 //            seasons.add(season);
 //        }
 //
-//        // for (APISeason season : seasons) {
-//        //     List<APIEpisode> episodes = season.episodes();
+//        // for (DataSeason season : seasons) {
+//        //     List<DataEpisode> episodes = season.episodes();
 //        //
-//        //     for (APIEpisode episode : episodes) {
+//        //     for (DataEpisode episode : episodes) {
 //        //         System.out.println(episode.title());
 //        //     }
 //        // }
 //
-//        // Consumer<APIEpisode> episodeConsumer = episode -> System.out.println(episode.title());
+//        // Consumer<DataEpisode> episodeConsumer = episode -> System.out.println(episode.title());
 //        // seasons.forEach(season -> season.episodes().forEach(episodeConsumer));
 //
-//        // List<APIEpisode> episodes = seasons.stream()
+//        // List<DataEpisode> episodes = seasons.stream()
 //        //         .flatMap(season -> season.episodes().stream())
 //        //         .toList();
 //
@@ -61,7 +61,7 @@ public class Main {
 //        //
 //        // episodes.stream()
 //        //         .filter(episode -> !episode.rating().equalsIgnoreCase("n/a"))
-//        //         .sorted(Comparator.comparing(APIEpisode::rating).reversed())
+//        //         .sorted(Comparator.comparing(DataEpisode::rating).reversed())
 //        //         .limit(5)
 //        //         .forEach(System.out::println);
 
@@ -165,24 +165,24 @@ public class Main {
         }
     }
 
-    private APISeries getSeriesByTitle() {
+    private DataSeries getSeriesByTitle() {
         System.out.println("\n\uD83D\uDCDD Escribe el título de la serie que deseas buscar:");
 
         var title = scanner.nextLine();
         var encoded = encodeTitle(title);
         var json = consumer.getDataFromAPI(URL + encoded);
 
-        return conversor.getData(json, APISeries.class);
+        return conversor.getData(json, DataSeries.class);
     }
 
     private void searchEpisodesBySeries() {
         var series = getSeriesByTitle();
         var encoded = encodeTitle(series.title());
-        var seasons = new ArrayList<APISeason>();
+        var seasons = new ArrayList<DataSeason>();
 
         for (int i = 1; i <= series.numberOfSeasons(); i++) {
-            var json = consumer.getDataFromAPI(URL + encoded + "&APISeason=" + i);
-            var season = conversor.getData(json, APISeason.class);
+            var json = consumer.getDataFromAPI(URL + encoded + "&DataSeason=" + i);
+            var season = conversor.getData(json, DataSeason.class);
             seasons.add(season);
         }
 
