@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    private static final String URL_BASE = "http://www.omdbapi.com/";
     private static final String API_KEY = "9c53b1c8";
+    private static final String URL_BASE = "http://www.omdbapi.com/";
     private static final String URL = URL_BASE + "?apikey=" + API_KEY + "&t=";
 
     private final Scanner scanner = new Scanner(System.in);
