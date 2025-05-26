@@ -3,6 +3,7 @@ package com.aluracursos.screenmatch.main;
 import com.aluracursos.screenmatch.models.DataSeason;
 import com.aluracursos.screenmatch.models.DataSeries;
 import com.aluracursos.screenmatch.models.Series;
+import com.aluracursos.screenmatch.repositories.SeriesRepository;
 import com.aluracursos.screenmatch.services.APIConsumer;
 import com.aluracursos.screenmatch.services.DataConversor;
 
@@ -10,7 +11,6 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -18,10 +18,14 @@ public class Main {
     private static final String URL_BASE = "http://www.omdbapi.com/";
     private static final String URL = URL_BASE + "?apikey=" + API_KEY + "&t=";
 
+    private final SeriesRepository repository;
     private final Scanner scanner = new Scanner(System.in);
     private final APIConsumer consumer = new APIConsumer();
     private final DataConversor conversor = new DataConversor();
-    private final List<DataSeries> searchHistory = new ArrayList<>();
+
+    public Main(SeriesRepository repository) {
+        this.repository = repository;
+    }
 
 //    public void showMenu() {
 //        var leadingMenuPart = "\n\uD83D\uDCDD ";
@@ -143,7 +147,7 @@ public class Main {
         var menu = """
                 1 - Buscar series.
                 2 - Buscar episodios por serie.
-                3 - Mostrar series buscadas.
+                3 - Mostrar series guardadas.
                 0 - Salir.
                 """;
 
@@ -157,7 +161,7 @@ public class Main {
             switch (option) {
                 case 1 -> searchSeries();
                 case 2 -> searchEpisodes();
-                case 3 -> showSearchHistory();
+                case 3 -> showSavedSeries();
                 case 0 -> System.out.println("Cerrando la aplicación");
                 default -> System.out.println("Opción inválida");
             }
@@ -165,17 +169,18 @@ public class Main {
     }
 
     private void searchSeries() {
-        var series = getSeries();
-        searchHistory.add(series);
-        System.out.println(series);
+        var data = getSeriesFromAPI();
+        var series = new Series(data);
+        repository.save(series);
+        System.out.println(data);
     }
 
     private void searchEpisodes() {
-        var series = getSeries();
-        var encoded = encodeTitle(series.title());
+        var data = getSeriesFromAPI();
+        var encoded = encodeTitle(data.title());
         var seasons = new ArrayList<DataSeason>();
 
-        for (int i = 1; i <= series.numberOfSeasons(); i++) {
+        for (int i = 1; i <= data.numberOfSeasons(); i++) {
             var json = consumer.getDataFromAPI(URL + encoded + "&DataSeason=" + i);
             var season = conversor.getData(json, DataSeason.class);
             seasons.add(season);
@@ -184,18 +189,15 @@ public class Main {
         seasons.forEach(System.out::println);
     }
 
-    private void showSearchHistory() {
-        var seriesList = searchHistory
-                .stream()
-                .map(Series::new)
-                .toList();
+    private void showSavedSeries() {
+        var savedSeries = repository.findAll();
 
-        seriesList.stream()
+        savedSeries.stream()
                 .sorted(Comparator.comparing(Series::getGenre))
                 .forEach(System.out::println);
     }
 
-    private DataSeries getSeries() {
+    private DataSeries getSeriesFromAPI() {
         System.out.println("\n\uD83D\uDCDD Escribe el título de la serie que deseas buscar:");
 
         var title = scanner.nextLine();
