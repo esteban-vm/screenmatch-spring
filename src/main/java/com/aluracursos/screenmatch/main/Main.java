@@ -21,7 +21,6 @@ public class Main {
     private final Scanner scanner = new Scanner(System.in);
     private final APIConsumer consumer = new APIConsumer();
     private final DataConversor conversor = new DataConversor();
-
     private final List<DataSeries> searchHistory = new ArrayList<>();
 
 //    public void showMenu() {
