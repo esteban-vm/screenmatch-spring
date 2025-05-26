@@ -22,7 +22,7 @@ public class Main {
     private final APIConsumer consumer = new APIConsumer();
     private final DataConversor conversor = new DataConversor();
 
-    private final ArrayList<DataSeries> searchedSeries = new ArrayList<>();
+    private final List<DataSeries> searchHistory = new ArrayList<>();
 
 //    public void showMenu() {
 //        var leadingMenuPart = "\n\uD83D\uDCDD ";
@@ -157,26 +157,22 @@ public class Main {
 
             switch (option) {
                 case 1 -> searchSeries();
-                case 2 -> searchEpisodesBySeries();
-                case 3 -> showSearchedSeries();
+                case 2 -> searchEpisodes();
+                case 3 -> showSearchHistory();
                 case 0 -> System.out.println("Cerrando la aplicación");
                 default -> System.out.println("Opción inválida");
             }
         }
     }
 
-    private DataSeries getSeriesByTitle() {
-        System.out.println("\n\uD83D\uDCDD Escribe el título de la serie que deseas buscar:");
-
-        var title = scanner.nextLine();
-        var encoded = encodeTitle(title);
-        var json = consumer.getDataFromAPI(URL + encoded);
-
-        return conversor.getData(json, DataSeries.class);
+    private void searchSeries() {
+        var series = getSeries();
+        searchHistory.add(series);
+        System.out.println(series);
     }
 
-    private void searchEpisodesBySeries() {
-        var series = getSeriesByTitle();
+    private void searchEpisodes() {
+        var series = getSeries();
         var encoded = encodeTitle(series.title());
         var seasons = new ArrayList<DataSeason>();
 
@@ -189,14 +185,8 @@ public class Main {
         seasons.forEach(System.out::println);
     }
 
-    private void searchSeries() {
-        var series = getSeriesByTitle();
-        searchedSeries.add(series);
-        System.out.println(series);
-    }
-
-    private void showSearchedSeries() {
-        List<Series> seriesList = searchedSeries
+    private void showSearchHistory() {
+        var seriesList = searchHistory
                 .stream()
                 .map(Series::new)
                 .toList();
@@ -204,6 +194,16 @@ public class Main {
         seriesList.stream()
                 .sorted(Comparator.comparing(Series::getGenre))
                 .forEach(System.out::println);
+    }
+
+    private DataSeries getSeries() {
+        System.out.println("\n\uD83D\uDCDD Escribe el título de la serie que deseas buscar:");
+
+        var title = scanner.nextLine();
+        var encoded = encodeTitle(title);
+        var json = consumer.getDataFromAPI(URL + encoded);
+
+        return conversor.getData(json, DataSeries.class);
     }
 
     private String encodeTitle(String title) {
