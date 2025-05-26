@@ -2,6 +2,7 @@ package com.aluracursos.screenmatch.models;
 
 import jakarta.persistence.*;
 
+import java.util.List;
 import java.util.OptionalDouble;
 
 @Entity
@@ -19,15 +20,20 @@ public class Series {
     private Genre genre;
     private String actors;
     private String synopsis;
+    @Transient
+    private List<Movie> movies;
 
-    public Series(DataSeries series) {
-        title = series.title();
-        rating = OptionalDouble.of(Double.parseDouble(series.rating())).orElse(0.0);
-        numberOfSeasons = series.numberOfSeasons();
-        poster = series.poster();
-        genre = Genre.fromString(series.genre().split(",")[0].trim());
-        actors = series.actors();
-        synopsis = series.synopsis();
+    public Series() {
+    }
+
+    public Series(DataSeries data) {
+        this.title = data.title();
+        this.rating = OptionalDouble.of(Double.parseDouble(data.rating())).orElse(0.0);
+        this.numberOfSeasons = data.numberOfSeasons();
+        this.poster = data.poster();
+        this.genre = Genre.fromString(data.genre().split(",")[0].trim());
+        this.actors = data.actors();
+        this.synopsis = data.synopsis();
     }
 
     @Override
