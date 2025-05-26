@@ -14,7 +14,7 @@ import java.util.Comparator;
 import java.util.Scanner;
 
 public class Main {
-    private static final String API_KEY = "9c53b1c8";
+    private static final String API_KEY = System.getenv("OMDB_API_KEY");
     private static final String URL_BASE = "http://www.omdbapi.com/";
     private static final String URL = URL_BASE + "?apikey=" + API_KEY + "&t=";
 
