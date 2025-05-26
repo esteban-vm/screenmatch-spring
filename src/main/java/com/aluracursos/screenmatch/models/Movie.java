@@ -10,20 +10,20 @@ public class Movie {
     private int episode;
     private LocalDate dateOfRelease;
 
-    public Movie(int number, DataEpisode episode) {
-        this.title = episode.title();
+    public Movie(int number, DataEpisode data) {
+        this.title = data.title();
 
         try {
-            this.rating = Double.parseDouble(episode.rating());
+            this.rating = Double.parseDouble(data.rating());
         } catch (NumberFormatException e) {
             this.rating = 0.0;
         }
 
         this.season = number;
-        this.episode = episode.number();
+        this.episode = data.number();
 
         try {
-            this.dateOfRelease = LocalDate.parse(episode.dateOfRelease());
+            this.dateOfRelease = LocalDate.parse(data.dateOfRelease());
         } catch (DateTimeParseException e) {
             this.dateOfRelease = null;
         }
