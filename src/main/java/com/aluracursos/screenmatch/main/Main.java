@@ -2,6 +2,7 @@ package com.aluracursos.screenmatch.main;
 
 import com.aluracursos.screenmatch.models.DataSeason;
 import com.aluracursos.screenmatch.models.DataSeries;
+import com.aluracursos.screenmatch.models.Movie;
 import com.aluracursos.screenmatch.models.Series;
 import com.aluracursos.screenmatch.repositories.SeriesRepository;
 import com.aluracursos.screenmatch.services.APIConsumer;
@@ -9,19 +10,19 @@ import com.aluracursos.screenmatch.services.DataConversor;
 
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
-    private static final String API_KEY = System.getenv("OMDB_API_KEY");
     private static final String URL_BASE = "http://www.omdbapi.com/";
+    private static final String API_KEY = System.getenv("OMDB_API_KEY");
     private static final String URL = URL_BASE + "?apikey=" + API_KEY + "&t=";
 
     private final SeriesRepository repository;
     private final Scanner scanner = new Scanner(System.in);
     private final APIConsumer consumer = new APIConsumer();
     private final DataConversor conversor = new DataConversor();
+
+    private List<Series> savedSeries = new ArrayList<>();
 
     public Main(SeriesRepository repository) {
         this.repository = repository;
@@ -30,7 +31,7 @@ public class Main {
     public void showMenu() {
         var menu = """
                 1 - Buscar series.
-                2 - Buscar episodios por serie.
+                2 - Buscar episodios.
                 3 - Mostrar series guardadas.
                 0 - Salir.
                 """;
@@ -60,21 +61,49 @@ public class Main {
     }
 
     private void searchEpisodes() {
-        var data = getSeriesFromAPI();
-        var encoded = encodeTitle(data.title());
-        var seasons = new ArrayList<DataSeason>();
+        showSavedSeries();
 
-        for (int i = 1; i <= data.numberOfSeasons(); i++) {
-            var json = consumer.getDataFromAPI(URL + encoded + "&DataSeason=" + i);
-            var season = conversor.getData(json, DataSeason.class);
-            seasons.add(season);
+        System.out.println("Escribe el título de la serie de la que quieres ver los episodios:");
+        var title = scanner.nextLine();
+
+        Optional<Series> optionalSeries = savedSeries
+                .stream()
+                .filter(series -> series
+                        .getTitle()
+                        .toLowerCase()
+                        .contains(title.toLowerCase())
+                )
+                .findFirst();
+
+        if (optionalSeries.isPresent()) {
+            var seasons = new ArrayList<DataSeason>();
+            var series = optionalSeries.get();
+            var encoded = encodeTitle(series.getTitle());
+            var numberOfSeasons = series.getNumberOfSeasons();
+
+            for (int i = 1; i <= numberOfSeasons; i++) {
+                var json = consumer.getDataFromAPI(URL + encoded + "&Season=" + i);
+                var season = conversor.getData(json, DataSeason.class);
+                seasons.add(season);
+            }
+
+            seasons.forEach(System.out::println);
+
+            List<Movie> movies = seasons
+                    .stream()
+                    .flatMap(season -> season.episodes()
+                            .stream()
+                            .map(episode -> new Movie(season.number(), episode)))
+                    .toList();
+
+            series.setMovies(movies);
+            repository.save(series);
         }
-
-        seasons.forEach(System.out::println);
     }
 
     private void showSavedSeries() {
-        var savedSeries = repository.findAll();
+        savedSeries = repository
+                .findAll();
 
         savedSeries.stream()
                 .sorted(Comparator.comparing(Series::getGenre))
