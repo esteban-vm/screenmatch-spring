@@ -20,7 +20,7 @@ public class Series {
     private Genre genre;
     private String actors;
     private String synopsis;
-    @Transient
+    @OneToMany(mappedBy = "series")
     private List<Movie> movies;
 
     public Series() {
@@ -111,5 +111,13 @@ public class Series {
 
     public void setSynopsis(String synopsis) {
         this.synopsis = synopsis;
+    }
+
+    public List<Movie> getMovies() {
+        return movies;
+    }
+
+    public void setMovies(List<Movie> movies) {
+        this.movies = movies;
     }
 }
