@@ -10,18 +10,19 @@ import java.util.OptionalDouble;
 public class Series {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+    
     @Column(unique = true)
     private String title;
-    private double rating;
-    private int numberOfSeasons;
+    private Double rating;
+    private Integer seasons;
     private String poster;
     @Enumerated(EnumType.STRING)
     private Genre genre;
     private String actors;
     private String synopsis;
     @OneToMany(mappedBy = "series")
-    private List<Movie> movies;
+    private List<Episode> episodes;
 
     public Series() {
     }
@@ -29,7 +30,7 @@ public class Series {
     public Series(DataSeries data) {
         this.title = data.title();
         this.rating = OptionalDouble.of(Double.parseDouble(data.rating())).orElse(0.0);
-        this.numberOfSeasons = data.numberOfSeasons();
+        this.seasons = data.numberOfSeasons();
         this.poster = data.poster();
         this.genre = Genre.fromString(data.genre().split(",")[0].trim());
         this.actors = data.actors();
@@ -41,7 +42,7 @@ public class Series {
         return "Series{" +
                 "title='" + title + '\'' +
                 ", rating=" + rating +
-                ", numberOfSeasons=" + numberOfSeasons +
+                ", numberOfSeasons=" + seasons +
                 ", poster='" + poster + '\'' +
                 ", genre=" + genre +
                 ", actors='" + actors + '\'' +
@@ -49,11 +50,11 @@ public class Series {
                 '}';
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -65,20 +66,20 @@ public class Series {
         this.title = title;
     }
 
-    public double getRating() {
+    public Double getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(Double rating) {
         this.rating = rating;
     }
 
-    public int getNumberOfSeasons() {
-        return numberOfSeasons;
+    public Integer getSeasons() {
+        return seasons;
     }
 
-    public void setNumberOfSeasons(int numberOfSeasons) {
-        this.numberOfSeasons = numberOfSeasons;
+    public void setSeasons(Integer seasons) {
+        this.seasons = seasons;
     }
 
     public String getPoster() {
@@ -113,11 +114,11 @@ public class Series {
         this.synopsis = synopsis;
     }
 
-    public List<Movie> getMovies() {
-        return movies;
+    public List<Episode> getEpisodes() {
+        return episodes;
     }
 
-    public void setMovies(List<Movie> movies) {
-        this.movies = movies;
+    public void setEpisodes(List<Episode> episodes) {
+        this.episodes = episodes;
     }
 }

@@ -2,7 +2,7 @@ package com.aluracursos.screenmatch.main;
 
 import com.aluracursos.screenmatch.models.DataSeason;
 import com.aluracursos.screenmatch.models.DataSeries;
-import com.aluracursos.screenmatch.models.Movie;
+import com.aluracursos.screenmatch.models.Episode;
 import com.aluracursos.screenmatch.models.Series;
 import com.aluracursos.screenmatch.repositories.SeriesRepository;
 import com.aluracursos.screenmatch.services.APIConsumer;
@@ -62,7 +62,6 @@ public class Main {
 
     private void searchEpisodes() {
         showSavedSeries();
-
         System.out.println("Escribe el título de la serie de la que quieres ver los episodios:");
         var title = scanner.nextLine();
 
@@ -79,7 +78,7 @@ public class Main {
             var seasons = new ArrayList<DataSeason>();
             var series = optionalSeries.get();
             var encoded = encodeTitle(series.getTitle());
-            var numberOfSeasons = series.getNumberOfSeasons();
+            var numberOfSeasons = series.getSeasons();
 
             for (int i = 1; i <= numberOfSeasons; i++) {
                 var json = consumer.getDataFromAPI(URL + encoded + "&Season=" + i);
@@ -89,14 +88,14 @@ public class Main {
 
             seasons.forEach(System.out::println);
 
-            List<Movie> movies = seasons
+            List<Episode> episodes = seasons
                     .stream()
                     .flatMap(season -> season.episodes()
                             .stream()
-                            .map(episode -> new Movie(season.number(), episode)))
+                            .map(episode -> new Episode(season.number(), episode)))
                     .toList();
 
-            series.setMovies(movies);
+            series.setEpisodes(episodes);
             repository.save(series);
         }
     }

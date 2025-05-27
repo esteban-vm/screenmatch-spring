@@ -6,23 +6,25 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 @Entity
-@Table(name = "movies")
-public class Movie {
+@Table(name = "episodes")
+public class Episode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+
+    @Column(unique = true)
     private String title;
-    private double rating;
-    private int season;
-    private int episode;
+    private Double rating;
+    private Integer season;
+    private Integer number;
     private LocalDate dateOfRelease;
     @ManyToOne
     private Series series;
 
-    public Movie() {
+    public Episode() {
     }
 
-    public Movie(int number, DataEpisode data) {
+    public Episode(Integer number, DataEpisode data) {
         this.title = data.title();
 
         try {
@@ -32,7 +34,7 @@ public class Movie {
         }
 
         this.season = number;
-        this.episode = data.number();
+        this.number = data.number();
 
         try {
             this.dateOfRelease = LocalDate.parse(data.dateOfRelease());
@@ -43,20 +45,20 @@ public class Movie {
 
     @Override
     public String toString() {
-        return "Movie{" +
+        return "Episode{" +
                 "title='" + title + '\'' +
                 ", rating=" + rating +
                 ", season=" + season +
-                ", episode=" + episode +
+                ", episode=" + number +
                 ", dateOfRelease=" + dateOfRelease +
                 '}';
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -68,28 +70,28 @@ public class Movie {
         this.title = title;
     }
 
-    public double getRating() {
+    public Double getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(Double rating) {
         this.rating = rating;
     }
 
-    public int getSeason() {
+    public Integer getSeason() {
         return season;
     }
 
-    public void setSeason(int season) {
+    public void setSeason(Integer season) {
         this.season = season;
     }
 
-    public int getEpisode() {
-        return episode;
+    public Integer getNumber() {
+        return number;
     }
 
-    public void setEpisode(int episode) {
-        this.episode = episode;
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 
     public LocalDate getDateOfRelease() {
