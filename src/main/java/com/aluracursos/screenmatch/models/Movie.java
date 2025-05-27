@@ -1,14 +1,26 @@
 package com.aluracursos.screenmatch.models;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+@Entity
+@Table(name = "movies")
 public class Movie {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
     private String title;
     private double rating;
     private int season;
     private int episode;
     private LocalDate dateOfRelease;
+    @ManyToOne
+    private Series series;
+
+    public Movie() {
+    }
 
     public Movie(int number, DataEpisode data) {
         this.title = data.title();
@@ -38,6 +50,14 @@ public class Movie {
                 ", episode=" + episode +
                 ", dateOfRelease=" + dateOfRelease +
                 '}';
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -78,5 +98,13 @@ public class Movie {
 
     public void setDateOfRelease(LocalDate dateOfRelease) {
         this.dateOfRelease = dateOfRelease;
+    }
+
+    public Series getSeries() {
+        return series;
+    }
+
+    public void setSeries(Series series) {
+        this.series = series;
     }
 }
