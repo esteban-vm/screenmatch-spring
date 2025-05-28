@@ -11,13 +11,12 @@ public class Episode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
     private String title;
     private Double rating;
     private Integer season;
     private Integer number;
     private LocalDate dateOfRelease;
-    @ManyToOne()
+    @ManyToOne
     private Series series;
 
     public Episode() {
