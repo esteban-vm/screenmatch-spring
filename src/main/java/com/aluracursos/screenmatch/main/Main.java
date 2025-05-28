@@ -37,6 +37,7 @@ public class Main {
                 4 - Buscar episodios por serie guardada.
                 5 - Mostrar la lista de series guardadas.
                 6 - Mostrar las 5 mejores series guardadas.
+                7 - Filtrar series guardadas por temporada y puntuación.
                 0 - Salir.
                 """;
 
@@ -54,6 +55,7 @@ public class Main {
                 case 4 -> searchEpisodesBySeries();
                 case 5 -> showSeriesList();
                 case 6 -> showTop5Series();
+                case 7 -> filterSeriesBySeasonAndRating();
                 case 0 -> System.out.println("Cerrando la aplicación");
                 default -> System.out.println("Opción inválida");
             }
@@ -87,10 +89,13 @@ public class Main {
         System.out.println("Escribe el género del cual deseas buscar las series:");
         var inputGenre = scanner.nextLine();
         var genre = Genre.fromString(inputGenre);
-        List<Series> seriesByGenre = repository.findByGenre(genre);
+        var seriesList = repository.findByGenre(genre);
+        seriesList.forEach(series -> {
+            String titleAndGenre = "Título: "
+                    + series.getTitle()
+                    + " - Género: "
+                    + series.getGenre();
 
-        seriesByGenre.forEach(series -> {
-            String titleAndGenre = series.getTitle() + ": " + series.getGenre();
             System.out.println(titleAndGenre);
         });
     }
@@ -121,7 +126,7 @@ public class Main {
 
             seasons.forEach(System.out::println);
 
-            List<Episode> episodes = seasons
+            var episodes = seasons
                     .stream()
                     .flatMap(season -> season.episodes()
                             .stream()
@@ -142,11 +147,35 @@ public class Main {
     }
 
     private void showTop5Series() {
-        List<Series> top5Series = repository.findTop5ByOrderByRatingDesc();
-        
-        top5Series.forEach(series -> {
-            String titleAndRating = series.getTitle() + ": " + series.getRating();
+        var seriesList = repository.findTop5ByOrderByRatingDesc();
+        seriesList.forEach(series -> {
+            String titleAndRating = "Título: "
+                    + series.getTitle()
+                    + " - Puntuación: "
+                    + series.getRating();
+
             System.out.println(titleAndRating);
+        });
+    }
+
+    private void filterSeriesBySeasonAndRating() {
+        System.out.println("¿Filtrar series con cuántas temporadas como máximo?");
+        var inputSeasons = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("¿A partir de qué puntuación?");
+        var inputRating = scanner.nextDouble();
+        scanner.nextLine();
+        // var seriesList = repository.findBySeasonsLessThanEqualAndRatingGreaterThanEqual(inputSeasons, inputRating);
+        var seriesList = repository.findBySeasonsAndRating(inputSeasons, inputRating);
+        seriesList.forEach(series -> {
+            String titleSeasonsAndRating = "Título: "
+                    + series.getTitle()
+                    + " - Temporadas: "
+                    + series.getSeasons()
+                    + " - Puntuación: "
+                    + series.getRating();
+
+            System.out.println(titleSeasonsAndRating);
         });
     }
 
