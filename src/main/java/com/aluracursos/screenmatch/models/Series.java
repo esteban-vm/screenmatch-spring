@@ -11,7 +11,7 @@ public class Series {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(unique = true)
     private String title;
     private Double rating;
@@ -21,7 +21,7 @@ public class Series {
     private Genre genre;
     private String actors;
     private String synopsis;
-    @OneToMany(mappedBy = "series")
+    @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Episode> episodes;
 
     public Series() {
@@ -40,13 +40,15 @@ public class Series {
     @Override
     public String toString() {
         return "Series{" +
-                "title='" + title + '\'' +
+                "id=" + id +
+                ", title='" + title + '\'' +
                 ", rating=" + rating +
-                ", numberOfSeasons=" + seasons +
+                ", seasons=" + seasons +
                 ", poster='" + poster + '\'' +
                 ", genre=" + genre +
                 ", actors='" + actors + '\'' +
                 ", synopsis='" + synopsis + '\'' +
+                ", episodes=" + episodes +
                 '}';
     }
 
@@ -119,6 +121,7 @@ public class Series {
     }
 
     public void setEpisodes(List<Episode> episodes) {
+        episodes.forEach(episode -> episode.setSeries(this));
         this.episodes = episodes;
     }
 }
