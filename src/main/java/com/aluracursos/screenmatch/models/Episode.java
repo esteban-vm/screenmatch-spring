@@ -11,14 +11,13 @@ public class Episode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true)
+    
     private String title;
     private Double rating;
     private Integer season;
     private Integer number;
     private LocalDate dateOfRelease;
-    @ManyToOne
+    @ManyToOne()
     private Series series;
 
     public Episode() {
@@ -46,10 +45,11 @@ public class Episode {
     @Override
     public String toString() {
         return "Episode{" +
-                "title='" + title + '\'' +
+                "id=" + id +
+                ", title='" + title + '\'' +
                 ", rating=" + rating +
                 ", season=" + season +
-                ", episode=" + number +
+                ", number=" + number +
                 ", dateOfRelease=" + dateOfRelease +
                 '}';
     }
