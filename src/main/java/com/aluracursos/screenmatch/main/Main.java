@@ -1,16 +1,16 @@
 package com.aluracursos.screenmatch.main;
 
-import com.aluracursos.screenmatch.models.DataSeason;
-import com.aluracursos.screenmatch.models.DataSeries;
-import com.aluracursos.screenmatch.models.Episode;
-import com.aluracursos.screenmatch.models.Series;
+import com.aluracursos.screenmatch.models.*;
 import com.aluracursos.screenmatch.repositories.SeriesRepository;
 import com.aluracursos.screenmatch.services.APIConsumer;
 import com.aluracursos.screenmatch.services.DataConversor;
 
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     private static final String URL_BASE = "http://www.omdbapi.com/";
@@ -30,9 +30,13 @@ public class Main {
 
     public void showMenu() {
         var menu = """
-                1 - Buscar serie.
-                2 - Buscar episodios por serie.
-                3 - Mostrar series buscadas.
+                
+                1 - Buscar serie desde API.
+                2 - Buscar serie guardada por título.
+                3 - Buscar series guardadas por género.
+                4 - Buscar episodios por serie guardada.
+                5 - Mostrar la lista de series guardadas.
+                6 - Mostrar las 5 mejores series guardadas.
                 0 - Salir.
                 """;
 
@@ -44,46 +48,75 @@ public class Main {
             scanner.nextLine();
 
             switch (option) {
-                case 1 -> searchSeries();
-                case 2 -> searchEpisodesBySeries();
-                case 3 -> showSearchedSeries();
+                case 1 -> searchSeriesFromAPI();
+                case 2 -> searchSeriesByTitle();
+                case 3 -> searchSeriesByGenre();
+                case 4 -> searchEpisodesBySeries();
+                case 5 -> showSeriesList();
+                case 6 -> showTop5Series();
                 case 0 -> System.out.println("Cerrando la aplicación");
                 default -> System.out.println("Opción inválida");
             }
         }
     }
 
-    private void searchSeries() {
-        var data = getSeriesFromAPI();
-        var series = new Series(data);
+    private void searchSeriesFromAPI() {
+        System.out.println("Escribe el título de la serie que deseas buscar desde la API:");
+        var inputTitle = scanner.nextLine();
+        var encodedTitle = encodeTitle(inputTitle);
+        var seriesJson = consumer.getDataFromAPI(URL + encodedTitle);
+        var seriesData = conversor.getData(seriesJson, DataSeries.class);
+        var series = new Series(seriesData);
         repository.save(series);
-        System.out.println(data);
+        System.out.println(seriesData);
+    }
+
+    private void searchSeriesByTitle() {
+        System.out.println("Escribe el título de la serie guardada que deseas buscar:");
+        var inputTitle = scanner.nextLine();
+        var matchedSeries = repository.findByTitleContainingIgnoreCase(inputTitle);
+
+        if (matchedSeries.isPresent()) {
+            System.out.println("Serie encontrada: " + matchedSeries.get());
+        } else {
+            System.out.println("Serie no encontrada");
+        }
+    }
+
+    private void searchSeriesByGenre() {
+        System.out.println("Escribe el género del cual deseas buscar las series:");
+        var inputGenre = scanner.nextLine();
+        var genre = Genre.fromString(inputGenre);
+        List<Series> seriesByGenre = repository.findByGenre(genre);
+
+        seriesByGenre.forEach(series -> {
+            String titleAndGenre = series.getTitle() + ": " + series.getGenre();
+            System.out.println(titleAndGenre);
+        });
     }
 
     private void searchEpisodesBySeries() {
-        showSearchedSeries();
-        System.out.println("Escribe el título de la serie de la que quieres ver los episodios:");
-        var title = scanner.nextLine();
+        showSeriesList();
+        System.out.println("Escribe el título de la serie guardada de la que quieres ver los episodios:");
+        var inputTitle = scanner.nextLine();
 
-        Optional<Series> optionalSeries = savedSeries
-                .stream()
+        var matchedSeries = savedSeries.stream()
                 .filter(series -> series
                         .getTitle()
                         .toLowerCase()
-                        .contains(title.toLowerCase())
-                )
+                        .contains(inputTitle.toLowerCase()))
                 .findFirst();
 
-        if (optionalSeries.isPresent()) {
+        if (matchedSeries.isPresent()) {
             var seasons = new ArrayList<DataSeason>();
-            var series = optionalSeries.get();
-            var encoded = encodeTitle(series.getTitle());
+            var series = matchedSeries.get();
+            var encodedTitle = encodeTitle(series.getTitle());
             var numberOfSeasons = series.getSeasons();
 
             for (int i = 1; i <= numberOfSeasons; i++) {
-                var json = consumer.getDataFromAPI(URL + encoded + "&Season=" + i);
-                var season = conversor.getData(json, DataSeason.class);
-                seasons.add(season);
+                var seasonJson = consumer.getDataFromAPI(URL + encodedTitle + "&Season=" + i);
+                var seasonData = conversor.getData(seasonJson, DataSeason.class);
+                seasons.add(seasonData);
             }
 
             seasons.forEach(System.out::println);
@@ -100,23 +133,21 @@ public class Main {
         }
     }
 
-    private void showSearchedSeries() {
-        savedSeries = repository
-                .findAll();
+    private void showSeriesList() {
+        savedSeries = repository.findAll();
 
         savedSeries.stream()
                 .sorted(Comparator.comparing(Series::getGenre))
                 .forEach(System.out::println);
     }
 
-    private DataSeries getSeriesFromAPI() {
-        System.out.println("\n\uD83D\uDCDD Escribe el título de la serie que deseas buscar:");
-
-        var title = scanner.nextLine();
-        var encoded = encodeTitle(title);
-        var json = consumer.getDataFromAPI(URL + encoded);
-
-        return conversor.getData(json, DataSeries.class);
+    private void showTop5Series() {
+        List<Series> top5Series = repository.findTop5ByOrderByRatingDesc();
+        
+        top5Series.forEach(series -> {
+            String titleAndRating = series.getTitle() + ": " + series.getRating();
+            System.out.println(titleAndRating);
+        });
     }
 
     private String encodeTitle(String title) {
