@@ -30,9 +30,9 @@ public class Main {
 
     public void showMenu() {
         var menu = """
-                1 - Buscar series.
-                2 - Buscar episodios.
-                3 - Mostrar series guardadas.
+                1 - Buscar serie.
+                2 - Buscar episodios por serie.
+                3 - Mostrar series buscadas.
                 0 - Salir.
                 """;
 
@@ -45,8 +45,8 @@ public class Main {
 
             switch (option) {
                 case 1 -> searchSeries();
-                case 2 -> searchEpisodes();
-                case 3 -> showSavedSeries();
+                case 2 -> searchEpisodesBySeries();
+                case 3 -> showSearchedSeries();
                 case 0 -> System.out.println("Cerrando la aplicación");
                 default -> System.out.println("Opción inválida");
             }
@@ -60,8 +60,8 @@ public class Main {
         System.out.println(data);
     }
 
-    private void searchEpisodes() {
-        showSavedSeries();
+    private void searchEpisodesBySeries() {
+        showSearchedSeries();
         System.out.println("Escribe el título de la serie de la que quieres ver los episodios:");
         var title = scanner.nextLine();
 
@@ -100,7 +100,7 @@ public class Main {
         }
     }
 
-    private void showSavedSeries() {
+    private void showSearchedSeries() {
         savedSeries = repository
                 .findAll();
 
