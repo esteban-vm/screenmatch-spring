@@ -7,10 +7,7 @@ import com.aluracursos.screenmatch.services.DataConversor;
 
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     private static final String URL_BASE = "http://www.omdbapi.com/";
@@ -23,6 +20,7 @@ public class Main {
     private final DataConversor conversor = new DataConversor();
 
     private List<Series> savedSeries = new ArrayList<>();
+    private Optional<Series> searchedSeries = Optional.empty();
 
     public Main(SeriesRepository repository) {
         this.repository = repository;
@@ -35,9 +33,11 @@ public class Main {
                 2 - Buscar serie guardada por título.
                 3 - Buscar series guardadas por género.
                 4 - Buscar episodios por serie guardada.
-                5 - Mostrar la lista de series guardadas.
-                6 - Mostrar las 5 mejores series guardadas.
-                7 - Filtrar series guardadas por temporada y puntuación.
+                5 - Buscar episodio guardado por título.
+                6 - Mostrar la lista de series guardadas.
+                7 - Mostrar las 5 mejores series guardadas.
+                8 - Filtrar series guardadas por temporada y puntuación.
+                9 - Mostrar los 5 mejores episodios por serie guardada.
                 0 - Salir.
                 """;
 
@@ -53,9 +53,11 @@ public class Main {
                 case 2 -> searchSeriesByTitle();
                 case 3 -> searchSeriesByGenre();
                 case 4 -> searchEpisodesBySeries();
-                case 5 -> showSeriesList();
-                case 6 -> showTop5Series();
-                case 7 -> filterSeriesBySeasonAndRating();
+                case 5 -> searchEpisodeByTitle();
+                case 6 -> showSeriesList();
+                case 7 -> showTop5Series();
+                case 8 -> filterSeriesBySeasonAndRating();
+                case 9 -> showTop5EpisodesBySeries();
                 case 0 -> System.out.println("Cerrando la aplicación");
                 default -> System.out.println("Opción inválida");
             }
@@ -76,10 +78,10 @@ public class Main {
     private void searchSeriesByTitle() {
         System.out.println("Escribe el título de la serie guardada que deseas buscar:");
         var inputTitle = scanner.nextLine();
-        var matchedSeries = repository.findByTitleContainingIgnoreCase(inputTitle);
+        searchedSeries = repository.findByTitleContainingIgnoreCase(inputTitle);
 
-        if (matchedSeries.isPresent()) {
-            System.out.println("Serie encontrada: " + matchedSeries.get());
+        if (searchedSeries.isPresent()) {
+            System.out.println("Serie encontrada: " + searchedSeries.get());
         } else {
             System.out.println("Serie no encontrada");
         }
@@ -91,12 +93,12 @@ public class Main {
         var genre = Genre.fromString(inputGenre);
         var seriesList = repository.findByGenre(genre);
         seriesList.forEach(series -> {
-            String titleAndGenre = "Título: "
+            String info = "Serie: "
                     + series.getTitle()
                     + " - Género: "
                     + series.getGenre();
 
-            System.out.println(titleAndGenre);
+            System.out.println(info);
         });
     }
 
@@ -105,16 +107,16 @@ public class Main {
         System.out.println("Escribe el título de la serie guardada de la que quieres ver los episodios:");
         var inputTitle = scanner.nextLine();
 
-        var matchedSeries = savedSeries.stream()
+        searchedSeries = savedSeries.stream()
                 .filter(series -> series
                         .getTitle()
                         .toLowerCase()
                         .contains(inputTitle.toLowerCase()))
                 .findFirst();
 
-        if (matchedSeries.isPresent()) {
+        if (searchedSeries.isPresent()) {
             var seasons = new ArrayList<DataSeason>();
-            var series = matchedSeries.get();
+            var series = searchedSeries.get();
             var encodedTitle = encodeTitle(series.getTitle());
             var numberOfSeasons = series.getSeasons();
 
@@ -135,7 +137,29 @@ public class Main {
 
             series.setEpisodes(episodes);
             repository.save(series);
+        } else {
+            System.out.println("Serie no encontrada");
         }
+    }
+
+    private void searchEpisodeByTitle() {
+        System.out.println("Escribe el título del episodio guardado que deseas buscar:");
+        var inputTitle = scanner.nextLine();
+        var episodeList = repository.findEpisodesByTitle(inputTitle);
+        episodeList.forEach(episode -> {
+            String info = "Episodio: "
+                    + episode.getTitle()
+                    + " - Serie: "
+                    + episode.getSeries().getTitle()
+                    + " - Número de temporada: "
+                    + episode.getSeason()
+                    + " - Número de episodio: "
+                    + episode.getNumber()
+                    + " - Puntuación: "
+                    + episode.getRating();
+
+            System.out.println(info);
+        });
     }
 
     private void showSeriesList() {
@@ -149,12 +173,12 @@ public class Main {
     private void showTop5Series() {
         var seriesList = repository.findTop5ByOrderByRatingDesc();
         seriesList.forEach(series -> {
-            String titleAndRating = "Título: "
+            String info = "Serie: "
                     + series.getTitle()
                     + " - Puntuación: "
                     + series.getRating();
 
-            System.out.println(titleAndRating);
+            System.out.println(info);
         });
     }
 
@@ -168,15 +192,36 @@ public class Main {
         // var seriesList = repository.findBySeasonsLessThanEqualAndRatingGreaterThanEqual(inputSeasons, inputRating);
         var seriesList = repository.findBySeasonsAndRating(inputSeasons, inputRating);
         seriesList.forEach(series -> {
-            String titleSeasonsAndRating = "Título: "
+            String info = "Serie: "
                     + series.getTitle()
-                    + " - Temporadas: "
+                    + " - Total de temporadas: "
                     + series.getSeasons()
                     + " - Puntuación: "
                     + series.getRating();
 
-            System.out.println(titleSeasonsAndRating);
+            System.out.println(info);
         });
+    }
+
+    private void showTop5EpisodesBySeries() {
+        searchSeriesByTitle();
+
+        if (searchedSeries.isPresent()) {
+            var series = searchedSeries.get();
+            var episodeList = repository.findTop5EpisodesBySeries(series);
+            episodeList.forEach(episode -> {
+                String info = "Episodio: "
+                        + episode.getTitle()
+                        + " - Número de temporada: "
+                        + episode.getSeason()
+                        + " - Número de episodio: "
+                        + episode.getNumber()
+                        + " - Puntuación: "
+                        + episode.getRating();
+
+                System.out.println(info);
+            });
+        }
     }
 
     private String encodeTitle(String title) {
