@@ -17,14 +17,16 @@ public interface SeriesRepository extends JpaRepository<Series, Long> {
     List<Series> findByGenre(Genre genre);
 
     // List<Series> findBySeasonsLessThanEqualAndRatingGreaterThanEqual(Integer seasons, Double rating);
-
     @Query("SELECT s FROM Series s WHERE s.seasons <= :seasons AND s.rating >= :rating")
     List<Series> findBySeasonsAndRating(Integer seasons, Double rating);
 
     // @Query("SELECT e FROM Series s JOIN s.episodes e WHERE LOWER(e.title) = LOWER(:episodeTitle)")
-    @Query("SELECT e FROM Series s JOIN s.episodes e WHERE e.title ILIKE %:episodeTitle%")
+    @Query("SELECT s FROM Series s JOIN s.episodes e WHERE e.title ILIKE %:episodeTitle%")
     List<Episode> findEpisodesByTitle(String episodeTitle);
 
-    @Query("SELECT e FROM Series s JOIN s.episodes e WHERE s = :series ORDER BY e.rating DESC LIMIT 5")
+    @Query("SELECT s FROM Series s JOIN s.episodes e WHERE s = :series ORDER BY e.rating DESC LIMIT 5")
     List<Episode> findTop5EpisodesBySeries(Series series);
+
+    @Query("SELECT s FROM Series s JOIN s.episodes e GROUP BY s ORDER BY MAX(e.dateOfRelease) DESC LIMIT 5")
+    List<Series> findLatestReleases();
 }
