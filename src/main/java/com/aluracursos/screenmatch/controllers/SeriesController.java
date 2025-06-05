@@ -1,5 +1,6 @@
 package com.aluracursos.screenmatch.controllers;
 
+import com.aluracursos.screenmatch.dto.EpisodeDTO;
 import com.aluracursos.screenmatch.dto.SeriesDTO;
 import com.aluracursos.screenmatch.services.SeriesService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,5 +35,20 @@ public class SeriesController {
     @GetMapping("/{id}")
     public SeriesDTO getSeriesById(@PathVariable Long id) {
         return service.getSeriesById(id);
+    }
+
+    @GetMapping("/{id}/temporadas/todas")
+    public List<EpisodeDTO> getAllEpisodes(@PathVariable Long id) {
+        return service.getAllEpisodes(id);
+    }
+
+    @GetMapping("/{id}/temporadas/{season}")
+    public List<EpisodeDTO> getSeasonByNumber(@PathVariable Long id, @PathVariable Long season) {
+        return service.getSeasonByNumber(id, season);
+    }
+
+    @GetMapping("/categoria/{genre}")
+    public List<SeriesDTO> getSeriesByGenre(@PathVariable String genre) {
+        return service.getSeriesByGenre(genre);
     }
 }
