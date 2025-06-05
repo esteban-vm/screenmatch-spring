@@ -21,12 +21,15 @@ public interface SeriesRepository extends JpaRepository<Series, Long> {
     List<Series> findBySeasonsAndRating(Integer seasons, Double rating);
 
     // @Query("SELECT e FROM Series s JOIN s.episodes e WHERE LOWER(e.title) = LOWER(:episodeTitle)")
-    @Query("SELECT s FROM Series s JOIN s.episodes e WHERE e.title ILIKE %:episodeTitle%")
+    @Query("SELECT e FROM Series s JOIN s.episodes e WHERE e.title ILIKE %:episodeTitle%")
     List<Episode> findEpisodesByTitle(String episodeTitle);
 
-    @Query("SELECT s FROM Series s JOIN s.episodes e WHERE s = :series ORDER BY e.rating DESC LIMIT 5")
+    @Query("SELECT e FROM Series s JOIN s.episodes e WHERE s = :series ORDER BY e.rating DESC LIMIT 5")
     List<Episode> findTop5EpisodesBySeries(Series series);
 
     @Query("SELECT s FROM Series s JOIN s.episodes e GROUP BY s ORDER BY MAX(e.dateOfRelease) DESC LIMIT 5")
     List<Series> findLatestReleases();
+
+    @Query("SELECT e FROM Series s JOIN s.episodes e WHERE s.id = :id AND e.season = :season")
+    List<Episode> findSeasonByNumber(Long id, Long season);
 }
